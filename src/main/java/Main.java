@@ -1,162 +1,207 @@
-import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-
-    Scanner teclado;
-    ListaConjuntos lista = new ListaConjuntos();
+    Conjunto conjuntoA, conjuntoB, conjuntoU;
+    Scanner scanner = new Scanner(System.in);
+    int opcionType;
+    int opcionMenu;
+    Operaciones operaciones;
 
     public Main() {
-        teclado = new Scanner(System.in);
+        operaciones = new Operaciones();
     }
 
-    public void mostrarMenu() {
-        System.out.println("-------------Menu de Opciones------------");
-        System.out.println("1...Definir Conjunto Universo (U)");
-        System.out.println("2...Crear un Conjuto");        
-        System.out.println("3...Mostrar Conjunto");
-        System.out.println("4...Operaciones");
-        System.out.println("0...Salir");
+    void showTypeMenu() {
+        System.out.println("Ingresa el tipo de dato que serán los conjuntos");
+        System.out.println("1........Caracter");
+        System.out.println("2........Entero");
+        System.out.println("3........Flotante");
+        System.out.print("Opción: ");
     }
 
-    public int selectOpcion() {
-        int opcion;
-        do {
-            System.out.print("Opcion: ");
-            opcion = teclado.nextInt();
-        } while (opcion > 4 || opcion < 0);
-        return opcion;
-    }
-
-    public void ejecutaAccion(int opcion) {
-        String v_nombre;
-        int v_numElementos;
-        if (opcion == 1) {
-            Conjunto conjuntoU = new Conjunto("U");
-            System.out.println("¿Cuantos elementos contiene?");
-            v_numElementos = teclado.nextInt();
-            teclado.nextLine(); //limpiar el buffer                  
-            for (int i = 0; i < v_numElementos; i++) {
-                System.out.print("Elemento #" + (i + 1) + ": ");
-                conjuntoU.agregarElemto(teclado.next());
-            }
-            lista.setConjuntoU(conjuntoU);
-        } else if (opcion == 2) {
-            System.out.println("");
-            teclado.nextLine();
-            System.out.print("Nombre del conjunto: ");
-            v_nombre = teclado.nextLine();
-            Conjunto v_conjunto = new Conjunto(v_nombre);
-            System.out.println("¿Cuantos elementos contiene?");
-            v_numElementos = teclado.nextInt();
-            teclado.nextLine(); //limpiar el buffer                  
-            for (int i = 0; i < v_numElementos; i++) {
-                System.out.print("Elemento #" + (i + 1) + ": ");
-                v_conjunto.agregarElemto(teclado.nextLine());
-            }
-            if (lista.compararConUniverso(v_conjunto)) 
-                lista.agregarConjunto(v_conjunto);               
-             else 
-                System.out.println("\nImposible crear este conjunto. Contiene elementos no "
-                        + "contenidos en el Conjunto Universo");
-            
-            System.out.println("");
-            
-            
-        }else if (opcion == 3) {
-            System.out.println("");
-            int numConjunto; 
-            
-            listarConjuntos();
-            System.out.print("Conjunto #: ");
-            numConjunto = teclado.nextInt();
-            
-            System.out.println(); //salto de linea en pantalla
-            
-            if (numConjunto == 1) 
-                if(lista.getConjuntoU() != null)
-                     System.out.println(lista.getConjuntoU().toString());
-                else
-                    System.out.println("\nEl conjunto U aun no ha sido definido\n");
-            else 
-                System.out.println("\n"+lista.getConjunto(numConjunto - 2).toString());
-
-            System.out.println("");
-        }else if(opcion == 4){
-            Conjunto conjNuevo = null;
-            int operacion = elegirOperacion();
-            teclado.nextLine();
-                
-                listarConjuntos();  
-                if(operacion == 1 || operacion == 2 || operacion == 3){
-                    
-                    System.out.print("Conjunto #1: ");
-                    int c1 = teclado.nextInt();
-                    System.out.print("Conjunto #2: ");
-                    int c2 = teclado.nextInt();
-                    Conjunto conj1, conj2; 
-                    if(c1 == 1)
-                        conj1 = lista.getConjuntoU();
-                    else
-                        conj1 = lista.getConjunto(c1-2);
-                    
-                    if(c2 == 1)
-                        conj2 = lista.getConjuntoU();
-                    else
-                        conj2 = lista.getConjunto(c2-2);                    
-                    
-                    switch(operacion){
-                        case 1: 
-                            conjNuevo = lista.unionConjuntos(conj1, conj2);
-                        break;
-                        case 2: 
-                            conjNuevo = lista.interConjunto(conj1, conj2);
-                        break;
-                        case 3:
-                            conjNuevo = lista.restaConjunto(conj1, conj2);                                             
-                    }
-                   lista.agregarConjunto(conjNuevo);                   
-                    System.out.println("\n"+conjNuevo.toString()+"\n");                  
-                }else if(operacion == 4){
-                    System.out.println("Conjunto #: ");
-                    int c1 = teclado.nextInt();
-                    conjNuevo = lista.compleConjunto(lista.getConjunto(c1-2));
-                    lista.agregarConjunto(conjNuevo);   
-                    System.out.println(conjNuevo.toString());
-                }
-            
+    void validateTypeOpcion() {
+        opcionType = scanner.nextInt();
+        while (opcionType < 1 || opcionType > 3) {
+            System.out.println("\nSolo opciones del menu");
+            System.out.print("Opción: ");
+            opcionType = scanner.nextInt();
         }
+    }
 
+    void initData() {
+        if (opcionType == 1) {
+            if(conjuntoA == null) conjuntoA = new Conjunto<Character>();
+            if(conjuntoB == null) conjuntoB = new Conjunto<Character>();
+            if(conjuntoU == null)conjuntoU = new Conjunto<Character>();
+        } else if (opcionType == 2) {
+            if(conjuntoA == null)conjuntoA = new Conjunto<Integer>();
+            if(conjuntoB == null)conjuntoB = new Conjunto<Integer>();
+            if(conjuntoU == null)conjuntoU = new Conjunto<Integer>();
+        } else {
+            if(conjuntoA == null)conjuntoA = new Conjunto<Float>();
+            if(conjuntoB == null)conjuntoB = new Conjunto<Float>();
+            if(conjuntoU == null)conjuntoU = new Conjunto<Float>();
+        }
     }
-    
-    private void listarConjuntos(){
-        ArrayList<String> nombres = lista.getNombres();
-        int i = 2, numConjunto;
-        System.out.println("1...Conjunto Universo(U)");
-            if (nombres != null) 
-                for (String nombre : nombres) {
-                    System.out.println(i + "..." + nombre);
-                    i++;
-                }       
+
+    void createGroupA() {
+        System.out.print("\nNúmero de elementos: ");
+        int numElements = scanner.nextInt();
+        Object elemento;
+
+        for (int i = 0; i < numElements; i++) {
+            System.out.print("Elemento #" + (i + 1) + ": ");
+            if (opcionType == 1) {
+                elemento = scanner.next().charAt(0);
+                //scanner.next();
+            } else if (opcionType == 2) {
+                elemento = scanner.nextInt();
+            } else {
+                elemento = scanner.nextFloat();
+            }
+            conjuntoA.addElement(elemento);
+        }
     }
-    
-    private int elegirOperacion(){
-        System.out.println("");        
-        System.out.println("1...Unión");
-        System.out.println("2...Intersección");
-        System.out.println("3...Diferencia");
-        System.out.println("4...Complemento");       
+
+    void createGroupB() {
+        System.out.print("\nNúmero de elementos: ");
+        int numElements = scanner.nextInt();
+        Object elemento;
+
+        for (int i = 0; i < numElements; i++) {
+            System.out.print("Elemento #" + (i + 1) + ": ");
+            if (opcionType == 1) {
+                elemento = scanner.next().charAt(0);
+                //scanner.next();
+            } else if (opcionType == 2) {
+                elemento = scanner.nextInt();
+            } else {
+                elemento = scanner.nextFloat();
+            }
+            conjuntoB.addElement(elemento);
+        }
+    }
+
+    void createUniverse() {
+        System.out.print("\nNúmero de elementos: ");
+        int numElements = scanner.nextInt();
+        Object elemento;
+
+        for (int i = 0; i < numElements; i++) {
+            System.out.print("Elemento #" + (i + 1) + ": ");
+            if (opcionType == 1) {
+                elemento = scanner.next().charAt(0);
+                //scanner.next();
+            } else if (opcionType == 2) {
+                elemento = scanner.nextInt();
+            } else {
+                elemento = scanner.nextFloat();
+            }
+            conjuntoU.addElement(elemento);
+        }
+    }
+
+    void showMenu() {
+        System.out.println("-----------------------Menu de opciones:--------------------------");
+        System.out.println("1......Definir conjunto Universo");
+        System.out.println("2......Crear conjunto A");
+        System.out.println("3......Crear conjunto B");
+        System.out.println("4......Union");
+        System.out.println("5......Interseccion");
+        System.out.println("0......Salir");
+        System.out.println("-------------------------------------------------------------------");
         System.out.print("Opcion: ");
-        return teclado.nextInt();
+    }
+
+    void validateMenuOpcion() {
+        opcionMenu = scanner.nextInt();
+        while (opcionMenu < 0 || opcionMenu > 5) {
+            System.out.println("\nSolo opciones del menu");
+            System.out.print("Opción: ");
+            opcionMenu = scanner.nextInt();
+        }
+    }
+
+    void execOption() {
+        switch (opcionMenu) {
+            case 1:
+                conjuntoU = null;
+                initData();
+                createUniverse();
+                operaciones.setUniverse(conjuntoU);
+                break;
+            case 2:
+                if (conjuntoU.getSize() != 0) {
+                    conjuntoA = null;
+                    initData();
+                    createGroupA();
+                    operaciones.setConjuntoA(conjuntoA);
+                    if (!operaciones.verifyUniverse(conjuntoA)) {
+                        System.out.println("\nEl conjunto A no se guardó, tiene elementos diferentes del universo. Redefinalo\n");
+                        operaciones.setConjuntoA(null);
+                    }
+                } else
+                    System.out.println("Primero defina un Universo\n");
+                break;
+            case 3:
+                if (conjuntoU.getSize() != 0) {
+                    conjuntoB = null;
+                    initData();
+                    createGroupB();
+                    operaciones.setConjuntoB(conjuntoB);
+                    if (!operaciones.verifyUniverse(conjuntoB)) {
+                        System.out.println("\nEl conjunto B no se guardó, tiene elementos diferentes del universo. Redefinalo\n");
+                        operaciones.setConjuntoB(null);
+                    }
+
+                } else
+                    System.out.println("Primero defina un Universo\n");
+                break;
+            case 4:
+                if (conjuntoU.getSize() != 0)
+                    if (operaciones.getConjuntoA() != null)
+                        if (operaciones.getConjuntoB() != null) {
+                            Conjunto conjunto = operaciones.union();
+                            System.out.println("Conjunto Solucion: ");
+                            System.out.println(conjunto.toString());
+                        } else
+                            System.out.println("\nNo existe un conjunto B");
+                    else
+                        System.out.println("\nNo existe un conjunto A");
+                else
+                    System.out.println("\nNo existe un conjunto Universo");
+
+                break;
+            case 5:
+
+                if (conjuntoU.getSize() != 0)
+                    if (operaciones.getConjuntoA() != null)
+                        if (operaciones.getConjuntoB() != null) {
+                            Conjunto conjunto = operaciones.intersection();
+                            System.out.println("Conjunto Solucion: ");
+                            System.out.println(conjunto.toString());
+                        } else
+                            System.out.println("\nNo existe un conjunto B");
+                    else
+                        System.out.println("\nNo existe un conjunto A");
+                else
+                    System.out.println("\nNo existe un conjunto Universo");
+
+        }
     }
 
     public static void main(String[] args) {
-        Main main = new Main();
-        int opcion;
-        do {
-            main.mostrarMenu();
-            opcion = main.selectOpcion();
-            main.ejecutaAccion(opcion);
-        } while (opcion != 0);
+        try {
+            Main main = new Main();
+            main.showTypeMenu();
+            main.validateTypeOpcion();
+            main.initData();
+            do {
+                main.showMenu();
+                main.validateMenuOpcion();
+                main.execOption();
+            } while (main.opcionMenu != 0);
+        }catch (InputMismatchException ex){}
     }
 }
